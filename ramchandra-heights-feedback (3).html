@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#10182B">
+<title>Ramchandra Heights — Quick Feedback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0E1526;
+    --bg-2: #131D35;
+    --bubble-them: #182544;
+    --bubble-us: #F3EEE2;
+    --ink-on-us: #14192A;
+    --ivory: #EFEAE0;
+    --muted: #8B93AE;
+    --gold: #C9A24B;
+    --gold-soft: #E4C878;
+    --line: #23304F;
+    --success: #6FA287;
+    --danger: #C97C6B;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(ellipse at top, #16213D 0%, #0A0F1D 70%);
+    min-height:100vh;
+    font-family:'Inter',sans-serif;
+    color:var(--ivory);
+    display:flex;
+    justify-content:center;
+  }
+  .app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--bg);
+    position:relative;
+  }
+
+  /* Header */
+  .header{
+    padding:22px 20px 18px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, #131D35 0%, rgba(19,29,53,0) 100%);
+    position:sticky;
+    top:0;
+    z-index:5;
+  }
+  .brand-row{display:flex; align-items:center; gap:12px;}
+  .brand-mark{
+    width:42px;height:42px;border-radius:10px;
+    background:linear-gradient(135deg, var(--gold-soft), var(--gold));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif; font-weight:600; font-size:17px; color:#1A1305;
+    flex-shrink:0;
+  }
+  .brand-text .name{font-family:'Fraunces',serif; font-weight:500; font-size:18px; letter-spacing:0.2px;}
+  .brand-text .sub{font-size:11.5px; color:var(--muted); letter-spacing:0.3px; margin-top:1px;}
+  .skyline{
+    margin-top:14px; height:34px; opacity:0.55;
+  }
+
+  /* Chat area */
+  .chat{
+    flex:1;
+    padding:22px 18px 140px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    overflow-y:auto;
+  }
+  .row{display:flex; width:100%;}
+  .row.them{justify-content:flex-start;}
+  .row.us{justify-content:flex-end;}
+
+  .bubble{
+    max-width:82%;
+    padding:12px 15px;
+    border-radius:16px;
+    font-size:14.5px;
+    line-height:1.5;
+    animation:rise 0.35s ease;
+  }
+  .bubble.them{
+    background:var(--bubble-them);
+    border-bottom-left-radius:4px;
+    color:var(--ivory);
+  }
+  .bubble.us{
+    background:var(--bubble-us);
+    color:var(--ink-on-us);
+    border-bottom-right-radius:4px;
+  }
+  @keyframes rise{
+    from{opacity:0; transform:translateY(8px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .typing{
+    display:flex; gap:4px; align-items:center;
+    background:var(--bubble-them);
+    padding:13px 16px; border-radius:16px; border-bottom-left-radius:4px;
+    width:fit-content;
+  }
+  .typing span{
+    width:6px;height:6px;border-radius:50%;background:var(--muted);
+    animation:blink 1.2s infinite ease-in-out;
+  }
+  .typing span:nth-child(2){animation-delay:0.2s;}
+  .typing span:nth-child(3){animation-delay:0.4s;}
+  @keyframes blink{0%,80%,100%{opacity:0.25;} 40%{opacity:1;}}
+
+  .divider{
+    text-align:center; font-size:11px; color:var(--muted);
+    margin:6px 0 2px; letter-spacing:0.4px;
+  }
+
+  /* Option chips / buttons */
+  .options{
+    display:flex; flex-direction:column; gap:8px; margin-top:4px; width:100%;
+  }
+  .opt-btn{
+    text-align:left;
+    background:var(--bg-2);
+    border:1px solid var(--line);
+    color:var(--ivory);
+    padding:13px 15px;
+    border-radius:12px;
+    font-size:14px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    transition:border-color 0.15s, background 0.15s;
+  }
+  .opt-btn:hover{border-color:var(--gold); background:#182544;}
+  .opt-btn:active{transform:scale(0.99);}
+
+  .chips{
+    display:flex; flex-wrap:wrap; gap:8px; margin-top:2px;
+  }
+  .chip{
+    padding:9px 14px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background:var(--bg-2);
+    color:var(--ivory);
+    font-size:13px;
+    cursor:pointer;
+    user-select:none;
+    transition:all 0.15s;
+  }
+  .chip.selected{
+    background:var(--gold);
+    border-color:var(--gold);
+    color:#1A1305;
+    font-weight:600;
+  }
+
+  textarea.note{
+    width:100%;
+    margin-top:10px;
+    background:var(--bg-2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    color:var(--ivory);
+    padding:12px 14px;
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    resize:none;
+    min-height:60px;
+  }
+  textarea.note::placeholder{color:var(--muted);}
+
+  .continue-btn{
+    margin-top:12px;
+    width:100%;
+    padding:13px;
+    border-radius:12px;
+    border:none;
+    background:linear-gradient(135deg, var(--gold-soft), var(--gold));
+    color:#1A1305;
+    font-weight:700;
+    font-size:14px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+  }
+  .continue-btn:disabled{opacity:0.4; cursor:not-allowed;}
+
+  .step-block{width:100%; max-width:100%;}
+
+  .footer-note{
+    text-align:center; font-size:11px; color:var(--muted);
+    padding:16px 24px 26px; margin-top:auto;
+  }
+
+  .status-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:11.5px; color:var(--success);
+    margin-top:10px;
+  }
+  .status-pill.error{color:var(--danger);}
+  .dot{width:6px;height:6px;border-radius:50%; background:currentColor;}
+
+  ::-webkit-scrollbar{width:0px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="brand-row">
+      <div class="brand-mark">RH</div>
+      <div class="brand-text">
+        <div class="name">Ramchandra Heights</div>
+        <div class="sub">A quick word from the sales team</div>
+      </div>
+    </div>
+    <svg class="skyline" viewBox="0 0 440 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <rect x="0" y="18" width="26" height="22" fill="#C9A24B"/>
+      <rect x="30" y="10" width="20" height="30" fill="#C9A24B"/>
+      <rect x="54" y="22" width="16" height="18" fill="#C9A24B"/>
+      <rect x="74" y="4" width="24" height="36" fill="#E4C878"/>
+      <rect x="102" y="16" width="18" height="24" fill="#C9A24B"/>
+      <rect x="124" y="24" width="14" height="16" fill="#C9A24B"/>
+      <rect x="142" y="8" width="22" height="32" fill="#C9A24B"/>
+      <rect x="168" y="20" width="16" height="20" fill="#E4C878"/>
+    </svg>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="footer-note">Ramchandra Heights · Your response will help us serve you better. Don't worry, we won't spam you 🙏</div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — replace with your deployed Google Apps Script URL
+   ============================================================ */
+const SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxUioApDL7CFtwv8kgeLvLzfl8TAHCp27bcOPKQ5MEvA-mTXycirdT9-Y71VtGlEnxjPw/exec";
+
+/* Read personalization from URL: ?name=Rahul&phone=9876543210 */
+const params = new URLSearchParams(window.location.search);
+const custName = params.get('name') || '';
+const custPhone = params.get('phone') || '';
+
+const chat = document.getElementById('chat');
+const responses = {
+  name: custName,
+  phone: custPhone,
+  status: '',
+  purchasedProperty: '',
+  reasons: [],
+  otherReason: '',
+  budget: '',
+  wantsUpdatedOffer: '',
+  referral: '',
+  stage: 'Opened link',
+  submittedAt: new Date().toISOString()
+};
+
+function scrollDown(){ window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'}); }
+
+function addThem(text, delay=650){
+  return new Promise(resolve=>{
+    const typingRow = document.createElement('div');
+    typingRow.className = 'row them';
+    typingRow.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+    chat.appendChild(typingRow);
+    scrollDown();
+    setTimeout(()=>{
+      typingRow.remove();
+      const row = document.createElement('div');
+      row.className = 'row them';
+      const b = document.createElement('div');
+      b.className = 'bubble them';
+      b.textContent = text;
+      row.appendChild(b);
+      chat.appendChild(row);
+      scrollDown();
+      resolve();
+    }, delay);
+  });
+}
+
+function addUs(text){
+  const row = document.createElement('div');
+  row.className = 'row us';
+  const b = document.createElement('div');
+  b.className = 'bubble us';
+  b.textContent = text;
+  row.appendChild(b);
+  chat.appendChild(row);
+  scrollDown();
+}
+
+function addButtons(options){
+  return new Promise(resolve=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'step-block';
+    const opts = document.createElement('div');
+    opts.className = 'options';
+    options.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = opt.label;
+      btn.onclick = ()=>{
+        opts.querySelectorAll('button').forEach(b=>b.disabled=true);
+        wrap.remove();
+        addUs(opt.label);
+        resolve(opt.value);
+      };
+      opts.appendChild(btn);
+    });
+    wrap.appendChild(opts);
+    chat.appendChild(wrap);
+    scrollDown();
+  });
+}
+
+function addChipsWithNote(tags, placeholder){
+  return new Promise(resolve=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'step-block';
+    const chipWrap = document.createElement('div');
+    chipWrap.className = 'chips';
+    const selected = new Set();
+    tags.forEach(tag=>{
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = tag;
+      chip.onclick = ()=>{
+        if(selected.has(tag)){ selected.delete(tag); chip.classList.remove('selected'); }
+        else { selected.add(tag); chip.classList.add('selected'); }
+      };
+      chipWrap.appendChild(chip);
+    });
+    const note = document.createElement('textarea');
+    note.className = 'note';
+    note.placeholder = placeholder;
+
+    const goBtn = document.createElement('button');
+    goBtn.className = 'continue-btn';
+    goBtn.textContent = 'Continue';
+    goBtn.onclick = ()=>{
+      wrap.remove();
+      const chosen = Array.from(selected);
+      if(chosen.length) addUs(chosen.join(' · '));
+      if(note.value.trim()) addUs(note.value.trim());
+      if(!chosen.length && !note.value.trim()) addUs('(skipped)');
+      resolve({tags: chosen, note: note.value.trim()});
+    };
+
+    wrap.appendChild(chipWrap);
+    wrap.appendChild(note);
+    wrap.appendChild(goBtn);
+    chat.appendChild(wrap);
+    scrollDown();
+  });
+}
+
+function addTextOnly(placeholder){
+  return new Promise(resolve=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'step-block';
+    const note = document.createElement('textarea');
+    note.className = 'note';
+    note.style.marginTop = '0';
+    note.placeholder = placeholder;
+
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.gap = '8px';
+    row.style.marginTop = '10px';
+
+    const skipBtn = document.createElement('button');
+    skipBtn.className = 'opt-btn';
+    skipBtn.style.flex = '1';
+    skipBtn.textContent = 'Skip';
+    skipBtn.onclick = ()=>{
+      wrap.remove();
+      addUs('(skipped)');
+      resolve('');
+    };
+
+    const goBtn = document.createElement('button');
+    goBtn.className = 'continue-btn';
+    goBtn.style.margin = '0';
+    goBtn.style.flex = '1';
+    goBtn.textContent = 'Continue';
+    goBtn.onclick = ()=>{
+      wrap.remove();
+      addUs(note.value.trim() || '(skipped)');
+      resolve(note.value.trim());
+    };
+
+    row.appendChild(skipBtn);
+    row.appendChild(goBtn);
+    wrap.appendChild(note);
+    wrap.appendChild(row);
+    chat.appendChild(wrap);
+    scrollDown();
+  });
+}
+
+function addSingleInput(placeholder, options){
+  return new Promise(resolve=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'step-block';
+    const opts = document.createElement('div');
+    opts.className = 'options';
+    options.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = opt;
+      btn.onclick = ()=>{
+        wrap.remove();
+        addUs(opt);
+        resolve(opt);
+      };
+      opts.appendChild(btn);
+    });
+    wrap.appendChild(opts);
+    chat.appendChild(wrap);
+    scrollDown();
+  });
+}
+
+async function saveToSheet(showConfirmation){
+  let pill = null;
+  if(showConfirmation){
+    const wrap = document.createElement('div');
+    wrap.className = 'row them';
+    pill = document.createElement('div');
+    pill.className = 'status-pill';
+    pill.innerHTML = '<span class="dot"></span> Saving your response…';
+    wrap.appendChild(pill);
+    chat.appendChild(wrap);
+    scrollDown();
+  }
+
+  if(!SHEET_WEBAPP_URL || SHEET_WEBAPP_URL.indexOf('PASTE_YOUR') === 0){
+    if(pill){
+      pill.classList.add('error');
+      pill.innerHTML = '<span class="dot"></span> Not connected to a sheet yet (demo mode)';
+    }
+    return;
+  }
+
+  try{
+    await fetch(SHEET_WEBAPP_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(responses)
+    });
+    if(pill) pill.innerHTML = '<span class="dot"></span> Response saved. Thank you! 🙏';
+  }catch(err){
+    if(pill){
+      pill.classList.add('error');
+      pill.innerHTML = '<span class="dot"></span> Could not save — please try again later';
+    }
+  }
+}
+
+async function run(){
+  if(responses.phone){ saveToSheet(false); } // silent: logs that they opened the link, even if they leave immediately
+
+  const greetName = responses.name ? responses.name.split(' ')[0] : 'there';
+  await addThem(`Hi ${greetName}! 👋`);
+  await addThem(`Thanks for visiting Ramchandra Heights recently. We'd love a 2-minute check-in — it genuinely helps us do better.`);
+  await addThem(`Quick one to start — where do things stand for you right now?`);
+
+  const status = await addButtons([
+    { label: '🔍 Still looking for the right property', value: 'still_looking' },
+    { label: '✅ Already finalized a property', value: 'bought_elsewhere' },
+    { label: '📈 Exploring this as an investment', value: 'investor' }
+  ]);
+  responses.status = status;
+  responses.stage = 'Answered: buyer status';
+  saveToSheet(false);
+
+  if(status === 'still_looking'){
+    await addThem(`Okay, got it. What stopped you from choosing Ramchandra Heights?`);
+    const r1 = await addChipsWithNote(
+      ['Price', 'Location / connectivity', 'Unit size or layout', 'Amenities', 'Payment plan', 'Possession timeline', 'Builder reputation', 'Something else'],
+      'Anything else you\'d like to add? (optional)'
+    );
+    responses.reasons = r1.tags;
+    responses.otherReason = r1.note;
+    responses.stage = 'Answered: reasons';
+    saveToSheet(false);
+
+    await addThem(`Is there anything we can help with? Maybe show you other properties, or answer some questions?`);
+    const offer = await addSingleInput('', ['Show me other properties', 'I have questions for the team', 'No, I\'m good for now']);
+    responses.wantsUpdatedOffer = offer;
+
+    if(offer === 'Show me other properties'){
+      await addThem(`Sure — our team will share a few other options that might suit you better.`);
+    } else if(offer === 'I have questions for the team'){
+      await addThem(`No problem — someone from our team will reach out to help.`);
+    } else {
+      await addThem(`Understood, thank you for letting us know.`);
+    }
+    await addThem(`Thank you for your time, and we hope to welcome you home soon 🏡`);
+    responses.stage = 'Completed';
+  }
+  else if(status === 'bought_elsewhere'){
+    await addThem(`Congratulations on finding your home! 🎉`);
+    await addThem(`Which property did you buy? Totally optional, but it helps us understand the market better.`);
+    const purchased = await addTextOnly('e.g. property name (optional)');
+    responses.purchasedProperty = purchased;
+    responses.stage = 'Answered: which property bought';
+    saveToSheet(false);
+
+    await addThem(`What made you choose that property over ours?`);
+    const r2 = await addChipsWithNote(
+      ['Better price', 'Better location', 'Bigger or better layout', 'Earlier possession', 'Amenities', 'Trusted brand', 'Better payment plan', 'Something else'],
+      'Anything else you\'d like to add? (optional)'
+    );
+    responses.reasons = r2.tags;
+    responses.otherReason = r2.note;
+    responses.stage = 'Answered: reasons';
+    saveToSheet(false);
+
+    await addThem(`If any friends or family are house-hunting, we'd love an introduction!`);
+    const ref = await addSingleInput('', ['Sure, happy to refer', 'Not right now']);
+    responses.referral = ref;
+
+    await addThem(`Thank you so much — this really helps us improve. Wishing you a wonderful new home! 🙏`);
+    responses.stage = 'Completed';
+  }
+  else{
+    await addThem(`Understood. As an investor, what matters most to you?`);
+    const r3 = await addChipsWithNote(
+      ['Lower entry price', 'Rental yield', 'Faster possession', 'Resale / appreciation potential', 'Flexible payment plan', 'Something else'],
+      'Anything else you\'d like to add? (optional)'
+    );
+    responses.reasons = r3.tags;
+    responses.otherReason = r3.note;
+    responses.stage = 'Answered: reasons';
+    saveToSheet(false);
+
+    await addThem(`What's your target budget range?`);
+    const budget = await addSingleInput('', ['Under ₹50L', '₹50L – ₹75L', '₹75L – ₹1Cr', '₹1Cr and above', 'Prefer not to say']);
+    responses.budget = budget;
+
+    await addThem(`Thanks! We'll keep you posted on pricing updates and new inventory that fits your criteria.`);
+    responses.stage = 'Completed';
+  }
+
+  await saveToSheet(true);
+}
+
+run();
+</script>
+</body>
+</html>
